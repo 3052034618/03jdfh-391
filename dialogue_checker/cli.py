@@ -181,26 +181,14 @@ def check(
 
     PATH 可以是单个对白文件或包含对白文件的目录，默认为 ./dialogues
     """
-    _print_banner()
-
     pace_config = {
         "max_continuous_high": max_continuous_high,
         "max_continuous_exposition": max_continuous_exposition,
         "require_buffer_after_high": not no_buffer_required,
     }
 
-    console.print(f"[dim]检查路径: {path}[/dim]")
-    console.print()
-
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        task = progress.add_task("正在分析对白树...", total=None)
-        checker = DialogueTreeChecker(pace_config=pace_config)
-        report = checker.check_path(path)
-        progress.update(task, completed=True)
+    checker = DialogueTreeChecker(pace_config=pace_config)
+    report = checker.check_path(path)
 
     if print_json:
         import sys as _sys
@@ -208,6 +196,11 @@ def check(
         _sys.stdout.write("\n")
         exit_code = 1 if report.has_errors else (2 if fail_on_warning and report.total_warnings > 0 else 0)
         _sys.exit(exit_code)
+
+    _print_banner()
+
+    console.print(f"[dim]检查路径: {path}[/dim]")
+    console.print()
 
     for result in report.results:
         _print_result(result, show_all)
@@ -282,31 +275,24 @@ def auto_preview(
 
     FILE 是要预览的对白文件路径
     """
-    _print_banner()
-
     try:
         parser = DialogueParser()
         tree = parser.load_file(file)
     except ParseError as e:
-        console.print(f"[bold red]解析错误:[/bold red] {e}")
+        if not print_json:
+            console.print(f"[bold red]解析错误:[/bold red] {e}")
         sys.exit(1)
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        task = progress.add_task("正在遍历所有路径...", total=None)
-        explorer = PathExplorer(tree)
-        report = explorer.explore()
-        progress.update(task, completed=True)
+    explorer = PathExplorer(tree)
+    report = explorer.explore()
 
     if print_json:
-        import sys as _sys
-        _sys.stdout.write(report.to_json())
-        _sys.stdout.write("\n")
+        sys.stdout.write(report.to_json())
+        sys.stdout.write("\n")
         exit_code = 1 if report.broken_count > 0 else 0
-        _sys.exit(exit_code)
+        sys.exit(exit_code)
+
+    _print_banner()
 
     console.print(Panel.fit(
         f"[bold cyan]🔍 自动路径遍历报告[/bold cyan]\n"

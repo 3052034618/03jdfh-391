@@ -89,7 +89,7 @@ class ConditionConflictChecker:
                                     choice_idx=choice_idx, choice_text=choice.text,
                                 ))
 
-        path_conflicts = self._find_path_condition_conflicts(tree)
+        path_conflicts = self._find_path_condition_conflicts(file_path, tree)
         result.issues.extend(path_conflicts)
 
         return self._deduplicate_issues(result)
@@ -143,7 +143,7 @@ class ConditionConflictChecker:
                 return True
         return False
 
-    def _find_path_condition_conflicts(self, tree: DialogueTree) -> List[CheckIssue]:
+    def _find_path_condition_conflicts(self, file_path: str, tree: DialogueTree) -> List[CheckIssue]:
         """深度优先遍历所有路径，检查路径上的条件冲突"""
         issues: List[CheckIssue] = []
 
@@ -164,7 +164,7 @@ class ConditionConflictChecker:
                         old_val, assigned_at = new_state.variable_assignments[var]
                         if old_val != val:
                             issues.append(self._create_path_conflict_issue(
-                                tree.title, node_id, node.text,
+                                file_path, node_id, node.text,
                                 ConflictType.PATH_SET_CONFLICT,
                                 var, old_val, assigned_at, val, node_id,
                                 new_state.path, new_state.choices,
@@ -175,7 +175,7 @@ class ConditionConflictChecker:
                 for cond in node.conditions:
                     for existing_var, (existing_val, assigned_at) in new_state.variable_assignments.items():
                         if self._check_assignment_vs_condition(
-                            existing_var, existing_val, assigned_at,
+                            file_path, existing_var, existing_val, assigned_at,
                             cond, node_id, node.text,
                             new_state.path, new_state.choices,
                             issues,
@@ -185,7 +185,7 @@ class ConditionConflictChecker:
                     for existing_cond in new_state.conditions:
                         if self._is_direct_negation(existing_cond, cond):
                             issues.append(self._create_path_cond_conflict_issue(
-                                tree.title, node_id, node.text,
+                                file_path, node_id, node.text,
                                 ConflictType.PATH_NEGATION_CONFLICT,
                                 existing_cond, cond,
                                 new_state.path, new_state.choices,
@@ -193,7 +193,7 @@ class ConditionConflictChecker:
                             return
                         elif self._is_same_variable_different_value(existing_cond, cond):
                             issues.append(self._create_path_cond_conflict_issue(
-                                tree.title, node_id, node.text,
+                                file_path, node_id, node.text,
                                 ConflictType.PATH_VALUE_CONFLICT,
                                 existing_cond, cond,
                                 new_state.path, new_state.choices,
@@ -201,7 +201,7 @@ class ConditionConflictChecker:
                             return
                         elif self._are_mutex_variables(existing_cond, cond):
                             issues.append(self._create_path_cond_conflict_issue(
-                                tree.title, node_id, node.text,
+                                file_path, node_id, node.text,
                                 ConflictType.PATH_MUTEX_CONFLICT,
                                 existing_cond, cond,
                                 new_state.path, new_state.choices,
@@ -230,6 +230,7 @@ class ConditionConflictChecker:
 
     def _check_assignment_vs_condition(
         self,
+        file_path: str,
         var: str,
         assigned_val: Any,
         assigned_at: str,
@@ -252,7 +253,7 @@ class ConditionConflictChecker:
                 type=IssueType.CONDITION_CONFLICT,
                 severity=Severity.ERROR,
                 message="路径上变量赋值与后续条件冲突",
-                file_path=node_id,
+                file_path=file_path,
                 node_id=node_id,
                 node_text=node_text,
                 path=list(path),
