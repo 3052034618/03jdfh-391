@@ -1,0 +1,216 @@
+{
+  "tree_id": "test_problematic_001",
+  "title": "测试场景 - 包含各种问题",
+  "description": "用于测试工具检测能力的问题场景，包含死路分支、条件冲突和节奏异常",
+  "start_node": "n_start",
+  "nodes": {
+    "n_start": {
+      "node_id": "n_start",
+      "node_type": "narration",
+      "text": "你醒来时发现自己躺在一张陌生的床上。房间里弥漫着消毒水的味道。",
+      "next_node": "n_choice1",
+      "fear_intensity": "low",
+      "dialogue_type": "buffer"
+    },
+    "n_choice1": {
+      "node_id": "n_choice1",
+      "node_type": "choice",
+      "text": "你决定：",
+      "choices": [
+        {
+          "choice_id": "c1",
+          "text": "起身查看房间",
+          "next_node": "n_dead_end1"
+        },
+        {
+          "choice_id": "c2",
+          "text": "大声呼救",
+          "next_node": "n_call"
+        },
+        {
+          "choice_id": "c3",
+          "text": "假装继续睡觉",
+          "next_node": "n_sleep"
+        }
+      ],
+      "fear_intensity": "low",
+      "dialogue_type": "buffer"
+    },
+    "n_dead_end1": {
+      "node_id": "n_dead_end1",
+      "node_type": "dialogue",
+      "speaker": "主角",
+      "text": "这个房间...我好像在哪里见过。",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_call": {
+      "node_id": "n_call",
+      "node_type": "dialogue",
+      "speaker": "主角",
+      "text": "有人吗？救命！",
+      "next_node": "n_response",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_response": {
+      "node_id": "n_response",
+      "node_type": "dialogue",
+      "speaker": "门外",
+      "text": "别喊了。你逃不掉的。",
+      "next_node": "n_conflict",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_conflict": {
+      "node_id": "n_conflict",
+      "node_type": "narration",
+      "text": "你想起了一切。但你什么都不记得了。",
+      "next_node": "n_ending1",
+      "conditions": [
+        {
+          "variable": "has_memory",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "has_memory",
+          "operator": "==",
+          "value": true,
+          "negation": true
+        }
+      ],
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_sleep": {
+      "node_id": "n_sleep",
+      "node_type": "narration",
+      "text": "你闭上眼睛，试图理清头绪。",
+      "next_node": "n_sleep2",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_sleep2": {
+      "node_id": "n_sleep2",
+      "node_type": "narration",
+      "text": "心跳越来越快。你能感觉到有什么东西在靠近。",
+      "next_node": "n_sleep3",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_sleep3": {
+      "node_id": "n_sleep3",
+      "node_type": "narration",
+      "text": "冰冷的手指触碰到了你的肩膀。",
+      "next_node": "n_sleep4",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_sleep4": {
+      "node_id": "n_sleep4",
+      "node_type": "narration",
+      "text": "一个声音在你耳边低语：找到你了。",
+      "next_node": "n_sleep5",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_sleep5": {
+      "node_id": "n_sleep5",
+      "node_type": "narration",
+      "text": "你猛地睁开眼睛。",
+      "next_node": "n_explain1",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_explain1": {
+      "node_id": "n_explain1",
+      "node_type": "narration",
+      "text": "这一切都是因为十年前的那场事故。你和妹妹在森林里玩捉迷藏，然后她就再也没有回来。",
+      "next_node": "n_explain2",
+      "fear_intensity": "low",
+      "dialogue_type": "exposition"
+    },
+    "n_explain2": {
+      "node_id": "n_explain2",
+      "node_type": "narration",
+      "text": "你一直责怪自己没有好好照顾她。这些年你一直在逃避，但她终于找到你了。",
+      "next_node": "n_explain3",
+      "fear_intensity": "low",
+      "dialogue_type": "exposition"
+    },
+    "n_explain3": {
+      "node_id": "n_explain3",
+      "node_type": "narration",
+      "text": "这个地方是你们当年发现的废弃小屋。她选择在这里和你重逢。",
+      "next_node": "n_explain4",
+      "fear_intensity": "low",
+      "dialogue_type": "exposition"
+    },
+    "n_explain4": {
+      "node_id": "n_explain4",
+      "node_type": "narration",
+      "text": "她不是要伤害你，她只是想让你记起她。那些幻觉都是她在试图唤醒你的记忆。",
+      "next_node": "n_explain5",
+      "fear_intensity": "low",
+      "dialogue_type": "exposition"
+    },
+    "n_explain5": {
+      "node_id": "n_explain5",
+      "node_type": "narration",
+      "text": "现在你终于想起来了，是时候面对这一切了。",
+      "next_node": "n_ending2",
+      "fear_intensity": "low",
+      "dialogue_type": "exposition"
+    },
+    "n_choice2": {
+      "node_id": "n_choice2",
+      "node_type": "choice",
+      "text": "你现在：",
+      "choices": [
+        {
+          "choice_id": "c4",
+          "text": "跟妹妹走",
+          "next_node": "n_nonexistent"
+        },
+        {
+          "choice_id": "c5",
+          "text": "拒绝妹妹",
+          "next_node": "n_ending3"
+        }
+      ],
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_ending1": {
+      "node_id": "n_ending1",
+      "node_type": "ending",
+      "text": "结局1：记忆的牢笼。你永远困在了矛盾的记忆中。",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_ending2": {
+      "node_id": "n_ending2",
+      "node_type": "ending",
+      "text": "结局2：和解。你终于原谅了自己，也原谅了妹妹。",
+      "fear_intensity": "low",
+      "dialogue_type": "buffer"
+    },
+    "n_ending3": {
+      "node_id": "n_ending3",
+      "node_type": "ending",
+      "text": "结局3：永恒的追逐。她永远不会放过你了。",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_isolated": {
+      "node_id": "n_isolated",
+      "node_type": "dialogue",
+      "speaker": "神秘人",
+      "text": "这段对话永远不会被听到。",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    }
+  }
+}

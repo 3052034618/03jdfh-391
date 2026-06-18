@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "dialogue-tree-checker"
+version = "0.1.0"
+description = "心理恐怖游戏对白树自检工具 - 在版本提交前检查分支是否可走通"
+authors = ["Narrative Dev Team"]
+readme = "README.md"
+packages = [{ include = "dialogue_checker" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+rich = "^13.7.0"
+click = "^8.1.7"
+pydantic = "^2.6.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+
+[tool.poetry.scripts]
+dt-check = "dialogue_checker.cli:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

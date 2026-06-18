@@ -1,0 +1,206 @@
+{
+  "tree_id": "example_scene_001",
+  "title": "废弃公寓 - 发现照片",
+  "description": "主角在废弃公寓中发现一张旧照片的场景，包含多种分支和节奏变化",
+  "start_node": "n_001",
+  "nodes": {
+    "n_001": {
+      "node_id": "n_001",
+      "node_type": "narration",
+      "text": "你推开积满灰尘的门，腐朽的气息扑面而来。昏暗的走廊尽头，有什么东西在反光。",
+      "next_node": "n_002",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_002": {
+      "node_id": "n_002",
+      "node_type": "choice",
+      "text": "你决定：",
+      "choices": [
+        {
+          "choice_id": "c_001",
+          "text": "小心地走过去查看",
+          "next_node": "n_003"
+        },
+        {
+          "choice_id": "c_002",
+          "text": "大声喊：有人吗？",
+          "next_node": "n_006"
+        },
+        {
+          "choice_id": "c_003",
+          "text": "转身离开",
+          "next_node": "n_008"
+        }
+      ],
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_003": {
+      "node_id": "n_003",
+      "node_type": "narration",
+      "text": "地板在你脚下吱呀作响。你走近一看，那是一张泛黄的老照片。",
+      "next_node": "n_004",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "approached_item": true
+      }
+    },
+    "n_004": {
+      "node_id": "n_004",
+      "node_type": "narration",
+      "text": "照片上是一个小女孩，她的眼睛被人用红笔划掉了。照片背面写着：还记得我吗？",
+      "next_node": "n_005",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "found_photo": true,
+        "has_memory": false
+      }
+    },
+    "n_005": {
+      "node_id": "n_005",
+      "node_type": "choice",
+      "text": "看到照片背面的字，你感到一阵寒意。你：",
+      "choices": [
+        {
+          "choice_id": "c_004",
+          "text": "仔细回忆照片上的女孩是谁",
+          "next_node": "n_009"
+        },
+        {
+          "choice_id": "c_005",
+          "text": "把照片放进口袋，继续探索",
+          "next_node": "n_010",
+          "conditions": [
+            {
+              "variable": "has_memory",
+              "operator": "==",
+              "value": false,
+              "negation": false
+            }
+          ]
+        },
+        {
+          "choice_id": "c_006",
+          "text": "这不可能...你明明已经死了！",
+          "next_node": "n_011",
+          "conditions": [
+            {
+              "variable": "has_memory",
+              "operator": "==",
+              "value": true,
+              "negation": false
+            }
+          ]
+        }
+      ],
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_006": {
+      "node_id": "n_006",
+      "node_type": "narration",
+      "text": "你的声音在空旷的走廊里回荡。没有人回应。但是...你好像听到了什么声音。",
+      "next_node": "n_007",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_007": {
+      "node_id": "n_007",
+      "node_type": "dialogue",
+      "speaker": "???",
+      "text": "你...不记得我了吗？",
+      "next_node": "n_005",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "found_photo": false,
+        "has_memory": true
+      }
+    },
+    "n_008": {
+      "node_id": "n_008",
+      "node_type": "narration",
+      "text": "你转身想走，但门不知何时已经关上了。不管你怎么用力，门都纹丝不动。",
+      "next_node": "n_002",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_009": {
+      "node_id": "n_009",
+      "node_type": "narration",
+      "text": "你头痛欲裂，记忆的碎片在脑海中闪现。那是你小时候最好的朋友，但她在十年前就失踪了...",
+      "next_node": "n_012",
+      "fear_intensity": "medium",
+      "dialogue_type": "exposition",
+      "set_variables": {
+        "has_memory": true
+      }
+    },
+    "n_010": {
+      "node_id": "n_010",
+      "node_type": "narration",
+      "text": "你把照片塞进口袋，决定先离开这里。但走廊尽头的黑暗中，有什么东西在移动。",
+      "next_node": "n_013",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_011": {
+      "node_id": "n_011",
+      "node_type": "narration",
+      "text": "照片上的女孩似乎笑了一下。背后传来冰冷的触感，一个声音在你耳边低语：你终于想起来了。",
+      "next_node": "n_014",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "conditions": [
+        {
+          "variable": "has_memory",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "found_photo",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        }
+      ]
+    },
+    "n_012": {
+      "node_id": "n_012",
+      "node_type": "narration",
+      "text": "你终于想起来了。照片上的女孩叫小雨，你们十岁那年一起在这栋楼里玩捉迷藏，然后她就消失了。",
+      "next_node": "n_011",
+      "fear_intensity": "low",
+      "dialogue_type": "buffer",
+      "set_variables": {
+        "knows_truth": true
+      }
+    },
+    "n_013": {
+      "node_id": "n_013",
+      "node_type": "narration",
+      "text": "那个东西越来越近了。你看不清它的脸，但你能听到它的呼吸声。",
+      "next_node": "n_015",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_014": {
+      "node_id": "n_014",
+      "node_type": "ending",
+      "text": "Bad Ending - 永伴旧友。你感到意识逐渐模糊，最后看到的是小雨那张被划掉眼睛的照片。",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_015": {
+      "node_id": "n_015",
+      "node_type": "ending",
+      "text": "Bad Ending - 一无所知。你到死都不知道那个追你的东西是谁。也许不知道更好。",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    }
+  }
+}
