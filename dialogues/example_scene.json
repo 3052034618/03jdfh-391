@@ -55,8 +55,7 @@
       "fear_intensity": "high",
       "dialogue_type": "tension",
       "set_variables": {
-        "found_photo": true,
-        "has_memory": false
+        "found_photo": true
       }
     },
     "n_005": {
@@ -116,7 +115,6 @@
       "fear_intensity": "high",
       "dialogue_type": "tension",
       "set_variables": {
-        "found_photo": false,
         "has_memory": true
       }
     },

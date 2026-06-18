@@ -1,0 +1,422 @@
+{
+  "tree_id": "writer_scene_002",
+  "title": "编剧导出示例 - 地下实验室",
+  "description": "模拟编剧导出的实际对白文件，包含各种常见的条件冲突问题",
+  "start_node": "n_entrance",
+  "nodes": {
+    "n_entrance": {
+      "node_id": "n_entrance",
+      "node_type": "narration",
+      "text": "你站在地下实验室的金属门前，门上的电子锁闪着红光。空气中弥漫着消毒水和腐烂的混合气味。",
+      "next_node": "n_door_choice",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "door_unlocked": false,
+        "has_access_card": false,
+        "power_on": true
+      }
+    },
+    "n_door_choice": {
+      "node_id": "n_door_choice",
+      "node_type": "choice",
+      "text": "你需要打开这扇门，你决定：",
+      "choices": [
+        {
+          "choice_id": "c_search",
+          "text": "在附近的尸体上搜索",
+          "next_node": "n_search_body"
+        },
+        {
+          "choice_id": "c_force",
+          "text": "尝试用蛮力撞开",
+          "next_node": "n_force_door"
+        },
+        {
+          "choice_id": "c_hack",
+          "text": "尝试破解电子锁",
+          "next_node": "n_hack_lock"
+        }
+      ],
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_search_body": {
+      "node_id": "n_search_body",
+      "node_type": "narration",
+      "text": "你强忍着恶心，在腐烂的尸体上翻找。在白大褂的口袋里，你找到了一张门禁卡。",
+      "next_node": "n_got_card",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "has_access_card": true,
+        "found_body": true
+      }
+    },
+    "n_force_door": {
+      "node_id": "n_force_door",
+      "node_type": "narration",
+      "text": "你用肩膀猛撞金属门。门纹丝不动，但你的肩膀剧痛无比。警报声突然响起！",
+      "next_node": "n_alarm",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "alarm_on": true,
+        "has_access_card": false
+      }
+    },
+    "n_hack_lock": {
+      "node_id": "n_hack_lock",
+      "node_type": "narration",
+      "text": "你掏出手机，尝试用自制的破解程序入侵电子锁。屏幕上的数字疯狂跳动...",
+      "next_node": "n_hack_result",
+      "fear_intensity": "medium",
+      "dialogue_type": "tension"
+    },
+    "n_got_card": {
+      "node_id": "n_got_card",
+      "node_type": "dialogue",
+      "speaker": "主角",
+      "text": "太好了，有门禁卡了。等等...这张卡上的名字...是陈博士？",
+      "next_node": "n_recognize_name",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "conditions": [
+        {
+          "variable": "has_access_card",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "has_access_card",
+          "operator": "==",
+          "value": false,
+          "negation": false
+        }
+      ],
+      "set_variables": {
+        "has_access_card": false,
+        "found_body": false
+      }
+    },
+    "n_recognize_name": {
+      "node_id": "n_recognize_name",
+      "node_type": "narration",
+      "text": "陈博士是你的导师。五年前，他在这个实验室失踪了。你就是为了找他才来到这里的。",
+      "next_node": "n_use_card",
+      "fear_intensity": "medium",
+      "dialogue_type": "exposition",
+      "set_variables": {
+        "knows_dr_chen": true,
+        "has_access_card": true
+      }
+    },
+    "n_alarm": {
+      "node_id": "n_alarm",
+      "node_type": "narration",
+      "text": "刺耳的警报声在走廊里回荡。你听到深处传来沉重的脚步声，正在快速靠近。",
+      "next_node": "n_creature_coming",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "creature_awakened": true,
+        "time_remaining": 60
+      }
+    },
+    "n_hack_result": {
+      "node_id": "n_hack_result",
+      "node_type": "narration",
+      "text": "程序成功了！门锁发出咔嗒一声，绿灯亮起。但你注意到屏幕上弹出一条警告：「安全协议已激活」。",
+      "next_node": "n_enter_lab",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "door_unlocked": true,
+        "security_alert": true
+      }
+    },
+    "n_use_card": {
+      "node_id": "n_use_card",
+      "node_type": "narration",
+      "text": "你把门禁卡插到读卡器上。屏幕显示：「身份验证通过。欢迎回来，陈博士。」门缓缓打开。",
+      "next_node": "n_enter_lab",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "conditions": [
+        {
+          "variable": "has_access_card",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "door_unlocked",
+          "operator": "==",
+          "value": false,
+          "negation": false
+        }
+      ],
+      "set_variables": {
+        "door_unlocked": true,
+        "impersonating_chen": true
+      }
+    },
+    "n_creature_coming": {
+      "node_id": "n_creature_coming",
+      "node_type": "narration",
+      "text": "脚步声越来越近。你必须做出选择。",
+      "next_node": "n_hide_choice",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "conditions": [
+        {
+          "variable": "has_memory",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "found_photo",
+          "operator": "==",
+          "value": false,
+          "negation": false
+        }
+      ]
+    },
+    "n_hide_choice": {
+      "node_id": "n_hide_choice",
+      "node_type": "choice",
+      "text": "脚步声越来越近，你决定：",
+      "choices": [
+        {
+          "choice_id": "c_hide",
+          "text": "躲进旁边的房间",
+          "next_node": "n_hide_room",
+          "conditions": [
+            {
+              "variable": "alarm_on",
+              "operator": "==",
+              "value": true,
+              "negation": false
+            },
+            {
+              "variable": "has_memory",
+              "operator": "==",
+              "value": false,
+              "negation": false
+            }
+          ]
+        },
+        {
+          "choice_id": "c_face",
+          "text": "转身面对它",
+          "next_node": "n_face_creature",
+          "conditions": [
+            {
+              "variable": "alarm_on",
+              "operator": "==",
+              "value": true,
+              "negation": false
+            },
+            {
+              "variable": "has_memory",
+              "operator": "==",
+              "value": true,
+              "negation": false
+            }
+          ]
+        },
+        {
+          "choice_id": "c_run",
+          "text": "往走廊尽头跑",
+          "next_node": "n_run_away",
+          "conditions": [
+            {
+              "variable": "found_photo",
+              "operator": "==",
+              "value": true,
+              "negation": false
+            },
+            {
+              "variable": "found_photo",
+              "operator": "==",
+              "value": false,
+              "negation": false
+            }
+          ]
+        }
+      ],
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_enter_lab": {
+      "node_id": "n_enter_lab",
+      "node_type": "narration",
+      "text": "实验室内部比你想象的要大得多。培养皿中漂浮着...是人的器官？墙上的屏幕显示着「实验体-007：苏醒」。",
+      "next_node": "n_lab_choice",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "in_lab": true,
+        "found_photo": true
+      }
+    },
+    "n_lab_choice": {
+      "node_id": "n_lab_choice",
+      "node_type": "choice",
+      "text": "你注意到实验室中央有一台主控制台，旁边的玻璃柜里放着一份实验报告。你决定：",
+      "choices": [
+        {
+          "choice_id": "c_console",
+          "text": "先查看控制台",
+          "next_node": "n_check_console"
+        },
+        {
+          "choice_id": "c_report",
+          "text": "先看实验报告",
+          "next_node": "n_read_report"
+        }
+      ],
+      "fear_intensity": "medium",
+      "dialogue_type": "tension",
+      "conditions": [
+        {
+          "variable": "has_access_card",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "no_memory",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        }
+      ]
+    },
+    "n_check_console": {
+      "node_id": "n_check_console",
+      "node_type": "narration",
+      "text": "控制台上显示着所有实验体的状态。大部分是「已终止」，只有实验体-007显示「活动中」。你认出了那个编号...是你失踪的妹妹。",
+      "next_node": "n_reveal_truth",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "knows_truth": true,
+        "sister_alive": true
+      }
+    },
+    "n_read_report": {
+      "node_id": "n_read_report",
+      "node_type": "narration",
+      "text": "实验报告详细记录了五年前的事故。陈博士为了复活死去的女儿，进行了非法的人体实验。而你，也是实验的一部分。",
+      "next_node": "n_reveal_truth",
+      "fear_intensity": "high",
+      "dialogue_type": "exposition",
+      "set_variables": {
+        "knows_truth": true,
+        "is_experiment": true
+      }
+    },
+    "n_hide_room": {
+      "node_id": "n_hide_room",
+      "node_type": "narration",
+      "text": "你冲进一个房间，关上门躲在桌子后面。脚步声在门外停了下来。你听到低沉的嘶吼声...",
+      "next_node": "n_ending_hide",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "conditions": [
+        {
+          "variable": "found_body",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "found_body",
+          "operator": "==",
+          "value": false,
+          "negation": true
+        }
+      ]
+    },
+    "n_face_creature": {
+      "node_id": "n_face_creature",
+      "node_type": "narration",
+      "text": "你转身面对黑暗中的身影。当它走入灯光下，你惊呆了...是陈博士。但他已经...不再是人类了。",
+      "next_node": "n_ending_face",
+      "fear_intensity": "high",
+      "dialogue_type": "tension",
+      "set_variables": {
+        "found_dr_chen": true,
+        "is_alive": true,
+        "is_dead": true
+      }
+    },
+    "n_run_away": {
+      "node_id": "n_run_away",
+      "node_type": "narration",
+      "text": "你不顾一切地往走廊尽头跑。但你忘记了，门已经被你锁上了...",
+      "next_node": "n_dead_end_run",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_reveal_truth": {
+      "node_id": "n_reveal_truth",
+      "node_type": "narration",
+      "text": "所有的记忆碎片拼合在一起。你终于想起了一切。五年前，是你亲手把妹妹交给了陈博士...",
+      "next_node": "n_ending_truth",
+      "fear_intensity": "high",
+      "dialogue_type": "exposition",
+      "conditions": [
+        {
+          "variable": "knows_truth",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        },
+        {
+          "variable": "doesnt_know_truth",
+          "operator": "==",
+          "value": true,
+          "negation": false
+        }
+      ],
+      "set_variables": {
+        "has_memory": true,
+        "guilty": true,
+        "has_memory": false
+      }
+    },
+    "n_dead_end_run": {
+      "node_id": "n_dead_end_run",
+      "node_type": "dialogue",
+      "speaker": "主角",
+      "text": "不...不！门被锁住了！我没有钥匙！",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_ending_hide": {
+      "node_id": "n_ending_hide",
+      "node_type": "ending",
+      "text": "Bad Ending - 躲藏者。门被缓缓推开。你屏住呼吸，但它已经闻到了你的味道...",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_ending_face": {
+      "node_id": "n_ending_face",
+      "node_type": "ending",
+      "text": "Bad Ending - 重逢。陈博士发出模糊的声音：「你...终于...来看我了...」他张开双臂抱住了你，永远地。",
+      "fear_intensity": "high",
+      "dialogue_type": "tension"
+    },
+    "n_ending_truth": {
+      "node_id": "n_ending_truth",
+      "node_type": "ending",
+      "text": "True Ending - 赎罪。你终于想起了一切。现在，你必须做出选择：是结束这一切，还是继续陈博士未完成的实验...",
+      "fear_intensity": "medium",
+      "dialogue_type": "buffer"
+    }
+  }
+}

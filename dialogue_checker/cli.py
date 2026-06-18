@@ -13,7 +13,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from . import __version__
 from .checker import DialogueTreeChecker
 from .checkers.base import CheckReport, CheckResult, CheckIssue, IssueType, Severity
-from .preview import DialoguePreviewer
+from .preview import DialoguePreviewer, PathExplorer, PathStatus, PathExplorerReport
 from .parser import DialogueParser, ParseError
 
 console = Console()
@@ -162,6 +162,9 @@ def cli():
 @click.option("--max-continuous-exposition", type=int, default=3, help="最大连续解释节点数")
 @click.option("--no-buffer-required", is_flag=True, help="不要求高压后必须有缓冲")
 @click.option("--fail-on-warning", is_flag=True, help="遇到警告也返回非零退出码")
+@click.option("--export-json", type=click.Path(), help="导出JSON格式报告到指定文件")
+@click.option("--export-md", type=click.Path(), help="导出Markdown格式报告到指定文件")
+@click.option("--print-json", is_flag=True, help="在终端打印JSON格式报告（机器可读）")
 def check(
     path: str,
     show_all: bool,
@@ -170,6 +173,9 @@ def check(
     max_continuous_exposition: int,
     no_buffer_required: bool,
     fail_on_warning: bool,
+    export_json: Optional[str],
+    export_md: Optional[str],
+    print_json: bool,
 ):
     """检查对白树的死路分支、条件冲突和恐惧节奏异常
 
@@ -196,11 +202,32 @@ def check(
         report = checker.check_path(path)
         progress.update(task, completed=True)
 
+    if print_json:
+        import sys as _sys
+        _sys.stdout.write(report.to_json())
+        _sys.stdout.write("\n")
+        exit_code = 1 if report.has_errors else (2 if fail_on_warning and report.total_warnings > 0 else 0)
+        _sys.exit(exit_code)
+
     for result in report.results:
         _print_result(result, show_all)
 
     if not no_summary:
         _print_summary(report)
+
+    if export_json:
+        try:
+            report.save_to_file(export_json, format="json")
+            console.print(f"\n✅ [green]JSON报告已导出到: {export_json}[/green]")
+        except Exception as e:
+            console.print(f"\n❌ [red]导出JSON失败: {e}[/red]")
+
+    if export_md:
+        try:
+            report.save_to_file(export_md, format="markdown")
+            console.print(f"✅ [green]Markdown报告已导出到: {export_md}[/green]")
+        except Exception as e:
+            console.print(f"❌ [red]导出Markdown失败: {e}[/red]")
 
     if report.has_errors:
         sys.exit(1)
@@ -232,6 +259,174 @@ def preview(file: str):
     except KeyboardInterrupt:
         console.print("\n\n[yellow]已中断预览[/yellow]")
         sys.exit(0)
+
+
+@cli.command("auto-preview")
+@click.argument("file", type=click.Path(exists=True, dir_okay=False))
+@click.option("--show-paths", is_flag=True, help="显示所有路径的详细信息")
+@click.option("--show-success", is_flag=True, help="只显示成功路径")
+@click.option("--show-broken", is_flag=True, help="只显示断裂路径")
+@click.option("--export-json", type=click.Path(), help="导出JSON格式的路径报告")
+@click.option("--export-md", type=click.Path(), help="导出Markdown格式的路径报告")
+@click.option("--print-json", is_flag=True, help="在终端打印JSON格式报告")
+def auto_preview(
+    file: str,
+    show_paths: bool,
+    show_success: bool,
+    show_broken: bool,
+    export_json: Optional[str],
+    export_md: Optional[str],
+    print_json: bool,
+):
+    """自动遍历所有可选路径，列出哪些路径能到结局、哪些路径断裂
+
+    FILE 是要预览的对白文件路径
+    """
+    _print_banner()
+
+    try:
+        parser = DialogueParser()
+        tree = parser.load_file(file)
+    except ParseError as e:
+        console.print(f"[bold red]解析错误:[/bold red] {e}")
+        sys.exit(1)
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("正在遍历所有路径...", total=None)
+        explorer = PathExplorer(tree)
+        report = explorer.explore()
+        progress.update(task, completed=True)
+
+    if print_json:
+        import sys as _sys
+        _sys.stdout.write(report.to_json())
+        _sys.stdout.write("\n")
+        exit_code = 1 if report.broken_count > 0 else 0
+        _sys.exit(exit_code)
+
+    console.print(Panel.fit(
+        f"[bold cyan]🔍 自动路径遍历报告[/bold cyan]\n"
+        f"[dim]场景: {tree.title}[/dim]\n"
+        f"[dim]对白树ID: {tree.tree_id}[/dim]",
+        border_style="cyan",
+    ))
+    console.print()
+
+    summary_table = Table(title="路径汇总", show_lines=False, border_style="dim")
+    summary_table.add_column("指标", style="cyan", justify="right")
+    summary_table.add_column("数量", style="white", justify="center")
+    summary_table.add_column("占比", style="white", justify="right")
+
+    summary_table.add_row("总路径数", str(report.total_paths), "100%")
+    summary_table.add_row("✅ 成功到达结局", str(report.success_count), f"{report.success_rate * 100:.1f}%")
+    summary_table.add_row("❌ 路径断裂", str(report.broken_count), f"{(1 - report.success_rate) * 100:.1f}%")
+
+    console.print(summary_table)
+    console.print()
+
+    if report.broken_count > 0:
+        console.print(Panel.fit(
+            f"[bold yellow]⚠️  发现 {report.broken_count} 条断裂路径，[/bold yellow]"
+            f"[bold yellow]请修复后再接入游戏[/bold yellow]",
+            border_style="yellow",
+        ))
+        console.print()
+    else:
+        console.print(Panel.fit(
+            "[bold green]✅ 所有路径均可到达结局！[/bold green]",
+            border_style="green",
+        ))
+        console.print()
+
+    status_counts: dict = {}
+    for result in report.broken_paths:
+        status_counts[result.status] = status_counts.get(result.status, 0) + 1
+
+    if status_counts:
+        status_table = Table(title="断裂原因分布", show_lines=False, border_style="dim")
+        status_table.add_column("断裂原因", style="cyan")
+        status_table.add_column("数量", style="white", justify="center")
+
+        status_labels = {
+            PathStatus.BROKEN_NODE: "❌ 节点不存在",
+            PathStatus.BROKEN_CHOICE: "❌ 所有选项条件不满足",
+            PathStatus.BROKEN_NO_NEXT: "❌ 节点缺少后续",
+            PathStatus.CONDITION_BLOCKED: "❌ 条件不满足",
+            PathStatus.LOOP_DETECTED: "⚠️  检测到循环",
+        }
+
+        for status, count in status_counts.items():
+            status_table.add_row(status_labels.get(status, status.value), str(count))
+
+        console.print(status_table)
+        console.print()
+
+    should_show_success = show_success or (show_paths and not show_broken)
+    should_show_broken = show_broken or (show_paths and not show_success) or show_paths
+
+    if should_show_success and report.successful_paths:
+        console.print(Panel.fit(
+            "[bold green]✅ 成功到达结局的路径[/bold green]",
+            border_style="green",
+        ))
+        console.print()
+
+        for idx, result in enumerate(report.successful_paths, 1):
+            console.print(f"[bold green]路径 {idx}[/bold green]")
+            console.print(f"  [dim]选择:[/dim] {result.choices_display}")
+            console.print(f"  [dim]节点:[/dim] {result.path_display}")
+            if result.ending_text:
+                text_preview = result.ending_text[:80] + "..." if len(result.ending_text) > 80 else result.ending_text
+                console.print(f"  [dim]结局:[/dim] \"{text_preview}\"")
+            console.print()
+
+    if should_show_broken and report.broken_paths:
+        console.print(Panel.fit(
+            "[bold red]❌ 断裂的路径[/bold red]",
+            border_style="red",
+        ))
+        console.print()
+
+        for idx, result in enumerate(report.broken_paths, 1):
+            status_labels = {
+                PathStatus.BROKEN_NODE: "❌ 节点不存在",
+                PathStatus.BROKEN_CHOICE: "❌ 所有选项条件不满足",
+                PathStatus.BROKEN_NO_NEXT: "❌ 节点缺少后续",
+                PathStatus.CONDITION_BLOCKED: "❌ 条件不满足",
+                PathStatus.LOOP_DETECTED: "⚠️  检测到循环",
+            }
+            status_label = status_labels.get(result.status, result.status.value)
+
+            console.print(f"[bold red]路径 {idx}[/bold red] {status_label}")
+            console.print(f"  [dim]选择:[/dim] {result.choices_display}")
+            console.print(f"  [dim]节点:[/dim] {result.path_display}")
+            console.print(f"  [dim]错误节点:[/dim] {result.end_node_id}")
+            if result.error_message:
+                console.print(f"  [dim]错误:[/dim] {result.error_message}")
+            console.print()
+
+    if export_json:
+        try:
+            with open(export_json, "w", encoding="utf-8") as f:
+                f.write(report.to_json())
+            console.print(f"✅ [green]JSON路径报告已导出到: {export_json}[/green]")
+        except Exception as e:
+            console.print(f"❌ [red]导出JSON失败: {e}[/red]")
+
+    if export_md:
+        try:
+            with open(export_md, "w", encoding="utf-8") as f:
+                f.write(report.to_markdown())
+            console.print(f"✅ [green]Markdown路径报告已导出到: {export_md}[/green]")
+        except Exception as e:
+            console.print(f"❌ [red]导出Markdown失败: {e}[/red]")
+
+    exit_code = 1 if report.broken_count > 0 else 0
+    sys.exit(exit_code)
 
 
 @cli.command("list")
