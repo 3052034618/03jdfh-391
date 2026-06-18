@@ -1,5 +1,5 @@
 """条件冲突检测器 - 检查同一段对白是否有互斥的条件要求"""
-from typing import List, Set, Dict, Tuple, Optional
+from typing import List, Set, Dict, Tuple, Optional, Any
 from itertools import combinations
 from dataclasses import dataclass
 from ..models import DialogueTree, DialogueNode, Condition, ChoiceOption
