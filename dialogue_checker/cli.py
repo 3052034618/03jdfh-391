@@ -3,6 +3,16 @@ import sys
 import os
 from pathlib import Path
 from typing import Optional
+
+# Windows终端兼容性：强制使用UTF-8编码，避免GBK不支持emoji导致崩溃
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
 import click
 from rich.console import Console
 from rich.panel import Panel
@@ -16,7 +26,12 @@ from .checkers.base import CheckReport, CheckResult, CheckIssue, IssueType, Seve
 from .preview import DialoguePreviewer, PathExplorer, PathStatus, PathExplorerReport
 from .parser import DialogueParser, ParseError
 
-console = Console()
+console = Console(
+    highlight=False,
+    emoji=False,
+    color_system="auto",
+    stderr=False,
+)
 
 
 def _print_banner():

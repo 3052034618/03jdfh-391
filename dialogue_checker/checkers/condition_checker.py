@@ -49,16 +49,20 @@ class ConditionConflictChecker:
     """
 
     def __init__(self):
-        self.mutex_variable_pairs: Set[Tuple[str, str]] = {
+        base_pairs: List[Tuple[str, str]] = [
             ("has_memory", "no_memory"),
             ("found_photo", "not_found_photo"),
             ("knows_truth", "doesnt_know_truth"),
             ("is_alive", "is_dead"),
             ("has_seen_monster", "hasnt_seen_monster"),
-            ("trust_character", "distrust_character"),
+            ("has_access_card", "no_access_card"),
             ("door_open", "door_locked"),
             ("light_on", "light_off"),
-        }
+        ]
+        self.mutex_variable_pairs: Set[Tuple[str, str]] = set()
+        for v1, v2 in base_pairs:
+            self.mutex_variable_pairs.add((v1, v2))
+            self.mutex_variable_pairs.add((v2, v1))
 
     def add_mutex_pair(self, var1: str, var2: str):
         self.mutex_variable_pairs.add((var1, var2))

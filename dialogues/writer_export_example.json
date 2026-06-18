@@ -292,6 +292,12 @@
           "operator": "==",
           "value": true,
           "negation": false
+        },
+        {
+          "variable": "has_memory",
+          "operator": "==",
+          "value": true,
+          "negation": false
         }
       ]
     },
